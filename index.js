@@ -1,34 +1,35 @@
-const stripe = require("stripe")("sk_test_k3KWqyIds3HgCFJ7Qro9IEbi");
+const config = require("./config");
+const stripe = require("stripe")(config.secretKey);
 const express = require("express");
-const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const logger = require("morgan");
 const cors = require("cors");
+
+const Items = require("./models/menuitem");
+
+const payRouter = require("./routes/processpay");
+const menuRouter = require("./routes/menu");
 
 const app = express();
 const router = express.Router();
+const connect = mongoose.connect(config.mongoURL);
 
-app.use(bodyParser.json());
+connect.then(
+  db => {
+    console.log("Connected correctly to server");
+  },
+  err => {
+    console.log(err.message);
+  }
+);
+
+app.use(logger("dev"));
+app.use(express.json());
 app.use(cors());
 
-router.post("/processpay", (req, res) => {
-  console.log("POST");
-  const stripetoken = req.body.stripetoken;
-  const amountpayable = req.body.amount;
-  const charge = stripe.charges
-    .create({
-      amount: amountpayable,
-      currency: "cad",
-      description: "Sample transaction",
-      source: stripetoken
-    })
-    .then(charge => {
-      res.send({ success: true });
-    })
-    .catch(err => {
-      console.log(err.message);
-    });
-});
+app.use("/processpay", payRouter);
+app.use("/menu", menuRouter);
 
-app.use(router);
 app.listen(3333, () => {
   console.log("Server listening on PORT 3333");
 });
