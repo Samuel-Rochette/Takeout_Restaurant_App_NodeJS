@@ -8,26 +8,28 @@ const payRouter = express.Router();
 payRouter.use(bodyParser.json());
 
 payRouter.route("/").post((req, res) => {
-  const stripetoken = req.body.stripetoken;
-  const amountpayable = req.body.amount;
-  const charge = stripe.charges
+  let stripetoken = req.body.stripetoken;
+  let amountpayable = req.body.amount;
+  let email = req.body.email;
+  let charge = stripe.charges
     .create({
       amount: amountpayable,
       currency: "cad",
       description: "Sample transaction",
-      source: stripetoken
+      source: stripetoken,
+      receipt_email: email
     })
     .then(charge => {
-      res.send({ success: true });
+      res.send({ message: "success" });
     })
     .catch(err => {
-      console.log(err.message);
+      res.send(err);
     });
 });
 
 payRouter.route("/check").post((req, res) => {
   let currentHour = new Date().getHours();
-  if (currentHour > 10 || currentHour < 3) {
+  if (currentHour > 10 || currentHour < 5) {
     if (req.body.isDelivery) {
       let arr = [req.body.address.split()];
       axios
@@ -45,7 +47,7 @@ payRouter.route("/check").post((req, res) => {
           if (distance <= 5000) {
             res.send({ message: "success" });
           } else {
-            res.send({ message: "Location too far away" });
+            res.send({ message: "Location too far away or cannot be found" });
           }
         });
     } else {
