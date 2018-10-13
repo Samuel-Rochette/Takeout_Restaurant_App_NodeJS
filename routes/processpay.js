@@ -2,6 +2,7 @@ const stripe = require("stripe")("sk_test_k3KWqyIds3HgCFJ7Qro9IEbi");
 const express = require("express");
 const bodyParser = require("body-parser");
 const axios = require("axios");
+const config = require("../config");
 
 const payRouter = express.Router();
 
@@ -31,16 +32,31 @@ payRouter.route("/check").post((req, res) => {
   let currentHour = new Date().getHours();
   if (currentHour > 10 || currentHour < 5) {
     if (req.body.isDelivery) {
-      let arr = [req.body.address.split()];
+      let destination = [req.body.address.split()];
+      let origin = [config.restaurantAddress.split()];
       axios
         .get(
-          "https://maps.googleapis.com/maps/api/distancematrix/json?origins=90+Glenwood+Dr+Brantford+ON&destinations=" +
-            arr[0] +
+          "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" +
+            origin[0] +
             "+" +
-            arr[1] +
+            origin[1] +
             "+" +
-            arr[arr.length] +
-            "+Brantford+ON&key=AIzaSyBNcrt_OK32theb19oVEgap3pU4vsKAMOo"
+            origin[origin.length] +
+            "+" +
+            config.city +
+            "+" +
+            config.province +
+            "&destinations=" +
+            destination[0] +
+            "+" +
+            destination[1] +
+            "+" +
+            destination[destination.length] +
+            "+" +
+            config.city +
+            "+" +
+            config.province +
+            "&key=AIzaSyBNcrt_OK32theb19oVEgap3pU4vsKAMOo"
         )
         .then(response => {
           let distance = response.data.rows[0].elements[0].distance.value;

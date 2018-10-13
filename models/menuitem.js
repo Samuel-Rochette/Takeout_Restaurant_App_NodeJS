@@ -13,9 +13,13 @@ const itemSchema = new Schema({
   price: {
     type: String,
     required: true
+  },
+  tag: {
+    type: String,
+    default: ""
   }
-})
+});
 
 const Items = mongoose.model("Item", itemSchema);
 
-module.exports = Items
+module.exports = Items;
