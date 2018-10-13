@@ -8,6 +8,7 @@ This is a NodeJS application that I made to serve data about menu items for a hy
 * Serves menu item data from mongo database
 * Store hours can be set so that orders cannot be made while the store is closed
 * Uses Google API distance matrix to ensure delivery orders cannot be made outside a certain distance from the store
+* Leverages Stripe API to send a receipt to the submitted email address after a successful order is placed
 
 ### Download and Deploy this project
 
